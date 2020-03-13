@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户中心</title>
+</head>
+<body>
+        <h1>个人中心</h1>
+           <a href=" {% url 'loginserver:编辑个人信息' %}">编辑个人信息</a>
+           <a href=" {% url 'loginserver:修改密码' %}">修改密码</a>
+           <a href=" {% url 'loginserver:主页' %}">回到主页</a>
+           <a href=" {% url 'loginserver:登出' %}">退出登录</a>
+<div>
+    <p>{{ user.username }}</p>
+{#    <p>{{ user.password }}</p> 加密的#}
+    <p>{{ user.email }}</p>
+    <p>{{ user.average_user.name }}</p>
+    <p>{{ user.average_user.birthday }}</p>
+</div>
+
+</body>
+</html>

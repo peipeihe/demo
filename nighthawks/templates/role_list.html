@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>角色权限列表</title>
+     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+{#<ul>#}
+{#    {% for role in roles %}#}
+{#    <li>{{ role.id }} {{ role.role_name}}</li>#}
+{##}
+{#    {% endfor %}#}
+{#</ul>#}
+{% csrf_token %}
+ <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <table class="table table-bordered table-striped table-hover">
+            <thread>
+                <tr>
+                    <th class="text-center">序号</th>
+                    <th class="text-center">角色名</th>
+                    <th class="text-center">操作</th>
+                </tr>
+            </thread>
+    <tbody>
+             {% for role in roles %}
+             <tr class="text-center">
+                 <td>{{  forloop.counter }}</td>
+                 <td>{{ role.role_name }}</td>
+                 <td><button class="btn btn-primary edit_btn" edit_id="{{ role.id }}">编辑</button>
+                 <button class="btn btn-danger delete del_btn" del_id="{{ role.id }}">删除</button></td>
+             </tr>
+            {% endfor %}
+{#    href="/delete_roles/?role_id={{ role.id }}"#}
+    </tbody>
+</table>
+        <span id="sum">共有{{ ret }}条记录</span>
+            <button class="btn btn-success add_btn" style="float: right">添加角色</button>
+            <div id="edit_roles" hidden>
+                 <h4>详细信息</h4>
+                        <p>角色名:<input type="text" name="role_name" class="form-control" id="update_input"></p>
+                       <button class="btn btn-success" id="role_update_btn">确认修改</button>
+                        <a href="/roles_list/" class="btn btn-danger">取消</a>
+            </div>
+        <div id="add_role" hidden>
+             <h4>添加角色</h4>
+                            <p>角色名:<input type="text" name="role_name" class="form-control" id="add_input"></p>
+                            <button class="btn btn-success" id="role_add_btn">添加</button>
+                            <a href="/roles_list/" class="btn btn-danger">取消</a>
+            </div>
+</div>
+ </div>
+<script>
+
+//编辑角色
+    $(document).on("click",".edit_btn",function() {
+        {#console.log($(this).attr("edit_id"));#}
+
+             document.getElementById("edit_roles").removeAttribute("hidden");
+
+        let roleId=$(this).attr("edit_id");//传一个参数就是获取一个标签的值
+        getRole(roleId);
+        $("#role_update_btn").attr("edit_id", roleId);//传两个参数就是给他标签和值
+    });
+    function getRole(roleId) {
+        $.ajax({
+            type:"get",
+            url:'/roles/edit/?role_id='+roleId,
+            success:function (result) {
+                console.log(result);
+                $("#update_input").val(result.role_name);
+            }
+        })
+    }
+
+    $(document).on("click","#role_update_btn",function() {
+        let roleId= $("#role_update_btn").attr("edit_id");
+        let roleName = $("#update_input").val();
+        updateRole(roleId,roleName);
+    });
+    function updateRole(roleId,roleName) {
+        $.ajax({
+            type:"post",
+            url:'/role/',
+            data:{
+                roleId,
+                roleName
+            },
+            success: function (result) {
+                if(result) {
+                  alert("修改成功");
+                  window.location.replace("/roles_list");
+                }
+              }
+        })
+    }
+
+    //删除角色
+    $(document).on("click",".del_btn",function(){
+        let roleId = $(this).attr("del_id");
+        let name = getRoleName(roleId);
+    });
+     function getRoleName(roleId) {
+         let roleName;
+        $.ajax({
+            type:"get",
+            url:'/roles/edit/?role_id='+roleId,
+            success:function (result) {
+                roleName=result.role_name;
+                let answer = confirm("确认删除"+roleName+"?");
+                deleteRole(roleId,answer);
+            }
+        });
+
+    }
+
+    function deleteRole(roleId, answer) {
+        if (answer == true) {
+            $.ajax({
+                type: "get",
+                url: '/delete_roles/',
+                data: {
+                    roleId,
+                    answer,
+                },
+                success: function (result) {
+                    if (result) {
+                        alert("删除成功");
+                        window.location.replace("/roles_list");
+                    }
+                }
+            })
+        }
+    }
+    //添加角色
+     $(document).on("click",".add_btn",function() {
+         {#console.log($(this).attr("edit_id"));#}
+         if(document.getElementById("add_role").hasAttribute("hidden")==true) {
+             document.getElementById("add_role").removeAttribute("hidden");
+         }else{
+             document.getElementById("add_role").setAttribute("hidden",true);
+         }
+     });
+
+      $(document).on("click","#role_add_btn",function() {
+          let roleName = $("#add_input").val();
+          let add = confirm("确认添加角色"+roleName+"吗？");
+          if(add==true) {
+              addRole(roleName);
+          }
+    });
+    function addRole(roleName) {
+        $.ajax({
+            type:"post",
+            url:'/add_roles/',
+            data:{
+                roleName
+            },
+            success: function (result) {
+                if(result=="添加成功") {
+                  alert("添加成功");
+                  window.location.replace("/roles_list/");
+                }else{
+                    alert("该角色已存在");
+                }
+              }
+        })
+    }
+</script>
+
+</body>
+</html>

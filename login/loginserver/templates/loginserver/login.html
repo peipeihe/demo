@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+
+<body>
+<h1>登录</h1>
+<a href=" {% url 'loginserver:主页' %}">主页</a>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ 错误 }}
+    <input type="text" name="username" placeholder="用户名">
+    <input type="password" name="password" placeholder="密码">
+    {{ 登录表单.verification }}
+    {{ 登录表单.errors.verification }}
+
+
+    <button type="submit">登录</button>
+    {#    <button class='js-captcha-refresh'>刷新</button>#}
+</form>
+
+
+<script>
+  $(function() {
+
+      {## ajax 刷新#}
+      $('.captcha').click(function () {
+          console.log('click');
+          $.getJSON("/captcha/refresh/",
+              function (result) {
+                  $('.captcha').attr('src', result['image_url']);
+                  $('#id_captcha_0').val(result['key'])
+              });
+      });
+  })
+
+</script>
+
+</body>
+</html>
